@@ -20,6 +20,7 @@ Needs macOS 26 on Apple Silicon. On first launch it downloads its brain (a local
 - **Talk to it.** Hold **right ⌥ Option** and speak. It answers out loud (macOS "Grandpa" voice, pick another in Me). It remembers facts you tell it and sets reminders ("remind me at four to call the dentist"), which it says aloud when due. See the Mind tab.
 - **Words.** Teach it names; it suggests words it keeps hearing; fixing a dictation teaches it a correction.
 - It wanders around the screen. Switch that off in Me if it bugs you.
+- A small frog in the menu bar (next to Wi-Fi and battery) hides or shows it, opens Notes & settings, and quits.
 
 ## Build from source
 

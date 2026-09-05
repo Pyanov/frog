@@ -11,6 +11,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     lazy var wander = Wander(panel: panel)
     let voice = PetVoice()
     let brain = Brain()
+    lazy var statusBar = StatusBar(app: self)
     private var talking = false
     private(set) var engine: Transcriber = AppleTranscriber()
     private var levelTimer: Timer?
@@ -21,6 +22,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ note: Notification) {
         panel.show()
+        _ = statusBar
         panel.onRightClick = { [weak self] in self?.hub.toggle() }
         panel.onLoaded = { [weak self] in
             self?.panel.js("pet.setState('loading')")
