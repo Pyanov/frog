@@ -1,0 +1,14 @@
+{
+  "name": "voicepet-web",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "vite --port 5210 --strictPort",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "three": "^0.180.0",
+    "vite": "^7.3.6",
+    "vite-plugin-singlefile": "^2.3.3"
+  }
+}

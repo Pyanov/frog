@@ -1,0 +1,15 @@
+.build/
+build/
+web/node_modules/
+web/dist/
+web/dist-preview/
+web/shots/
+web/video/
+web/models/
+web/src/main.kirby.js
+web/src/main.frog.js
+web/src/main.cat.js
+web/src/main.shark.js
+web/tools/shark_blender.py
+.signing/
+.DS_Store

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key><string>VoicePet</string>
+  <key>CFBundleDisplayName</key><string>VoicePet</string>
+  <key>CFBundleIdentifier</key><string>ai.learnvector.voicepet</string>
+  <key>CFBundleExecutable</key><string>VoicePet</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleVersion</key><string>1</string>
+  <key>CFBundleShortVersionString</key><string>0.1.0</string>
+  <key>LSMinimumSystemVersion</key><string>26.0</string>
+  <key>LSUIElement</key><true/>
+  <key>NSHighResolutionCapable</key><true/>
+  <key>NSMicrophoneUsageDescription</key><string>Your pet listens while you hold the hotkey, so it can type what you say. Audio stays on this Mac.</string>
+  <key>NSAudioCaptureUsageDescription</key><string>For meeting notes, your pet listens to the other side of your call. Audio stays on this Mac.</string>
+  <key>NSSpeechRecognitionUsageDescription</key><string>Used for the Apple on-device speech engine. Nothing leaves this Mac.</string>
+</dict>
+</plist>
