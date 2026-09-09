@@ -63,6 +63,7 @@ const FPS = 30, SIZE = tl.size || 1080, VW = tl.width || SIZE, VH = tl.height ||
     if (probe) { if (probe.some(pt => Math.abs(pt - t) < 0.5 / FPS)) await page.screenshot({ path: path.join(outDir, `p${t.toFixed(1)}.png`) }) }
     else { await page.screenshot({ path: path.join(outDir, `f${String(f).padStart(5, '0')}.png`) }); if (f % 150 === 0) console.log(`frame ${f}/${total}`) }
   }
+  console.log('page clock at end (ms):', await page.evaluate(() => performance.now()))
   await browser.close()
   console.log('done', total, 'frames')
 })().catch(e => { console.error(e); process.exit(1) })

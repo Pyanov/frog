@@ -434,10 +434,11 @@ function frame() {
   look.y += (look.ty - look.y) * Math.min(1, dt * lk)
   levelSmooth += (level - levelSmooth) * Math.min(1, dt * 14)
 
-  let hover = Math.sin(t * (1.5 - 0.6 * calm)) * (0.03 - 0.01 * calm)
-  let breathe = 1 + Math.sin(t * (2.0 - 0.9 * calm)) * (0.012 + 0.023 * calm)
+  let hover = Math.sin(t * (1.5 - 1.0 * calm)) * (0.03 - 0.015 * calm)
+  let breathe = 1 + Math.sin(t * (2.0 - 1.3 * calm)) * (0.012 + 0.023 * calm)
   let throatScale = 1
-  let rotX = -look.y * 0.18, rotY = look.x * 0.32, rotZ = 0
+  const headFollow = 1 - 0.55 * calm   // calm: eyes travel more than the head
+  let rotX = -look.y * 0.18 * headFollow, rotY = look.x * 0.32 * headFollow, rotZ = 0
   let eyeOpen = 1
   let mouthOpen = 0
   let haloOpacity = 0
