@@ -2,11 +2,15 @@
 
 <h1 align="center">Frog</h1>
 
-<p align="center">An open-source, on-device alternative to Wispr Flow and Granola.<br>It lives on your Mac desktop, and it is a frog.</p>
+<p align="center">A personal, snack-demanding nuisance that types what you say.<br>An open-source, on-device alternative to Wispr Flow and Granola, for the Mac.</p>
 
 Hold **fn** and talk. The frog types what you say into whatever is in front of you: a Claude Code or Codex prompt, a terminal, an email. Let go and the text is there. Start it before a call and it takes the notes: who said what, and a summary to read afterwards. Hold **right ⌥ Option** and talk to it. It answers out loud in an old man's voice, remembers what you tell it, and keeps you company while you work. It is fat, lazy, a little sarcastic, and fond of flies.
 
 Everything runs on your Mac. Speech recognition, speaker labels, and the frog's brain are local models, downloaded once. Nothing you say leaves the machine.
+
+## In its own words
+
+> I live on the desk. You hold a key and mumble, I type it, which I consider generous of me. I take your meeting notes so you can look out the window. I remember what you tell me and I'll remind you, in a voice you will learn to accept. I like flies. I like snacks. I would like a nap. Nothing you say leaves this Mac, mostly because I can't be bothered to send it anywhere.
 
 ## What it does
 
