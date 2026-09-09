@@ -7,6 +7,7 @@ import Speech
 //   VoicePet --diarize file.wav
 //   VoicePet --summarize transcript.txt
 //   VoicePet --tap-test 5            capture 5s of system audio, transcribe it
+//   VoicePet --chat "hey" ["..."]     load the brain once, print its reply to each message (no memory writes)
 final class SampleSink: @unchecked Sendable {
     private var buf: [Float] = []
     private let q = DispatchQueue(label: "sink")
@@ -15,7 +16,7 @@ final class SampleSink: @unchecked Sendable {
 }
 
 func runDebug(_ args: [String]) -> Bool {
-    guard args.count >= 2, ["--transcribe", "--diarize", "--summarize", "--tap-test", "--check", "--brain"].contains(args[1]) else { return false }
+    guard args.count >= 2, ["--transcribe", "--diarize", "--summarize", "--tap-test", "--check", "--brain", "--chat"].contains(args[1]) else { return false }
     let sem = DispatchSemaphore(value: 0)
     Task {
         do {
@@ -52,6 +53,12 @@ func runDebug(_ args: [String]) -> Bool {
                 print(String(format: "  %.2fs incl. memory extraction", Date().timeIntervalSince(t0)))
                 print("reminders: \(await Mind.shared.reminders.map { "\($0.text) @ \($0.due.map { "\($0)" } ?? "no time")" })")
                 print("facts: \(await Mind.shared.facts)")
+            case "--chat":
+                UserDefaults.standard.set(true, forKey: "brainOn")
+                let brain = await Brain()
+                await brain.prepare()
+                print("status: \(await brain.status)")
+                for m in args.dropFirst(2) { print("> \(m)"); print(await brain.say(m) ?? "nil") }
             case "--check":
                 print("accessibility trusted: \(Permissions.accessibilityTrusted)")
                 print("mic: \(AVCaptureDevice.authorizationStatus(for: .audio).rawValue) (3 = authorized)")
