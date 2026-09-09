@@ -218,6 +218,7 @@ const fly = new THREE.Group()
 }
 let flyEaten = 0   // time left hidden
 let flySpeed = 1, flyPhase = 0   // fly pace; videos slow it down
+let calm = 0   // 0..1: slower, softer motion for videos (gentler spring, rarer hops, deeper breathing)
 
 // retro military headset: on while taking notes
 const phones = new THREE.Group()
@@ -370,7 +371,7 @@ let talking = false
 const slide = { x: 0, y: 0, tx: 0, ty: 0, speed: 3 }
 const cam = { tz: camera.position.z, speed: 0 }
 
-function impulse(v) { sqV += v }
+function impulse(v) { sqV += v * (1 - 0.5 * calm) }
 
 window.pet = {
   name: 'frog',
@@ -391,6 +392,7 @@ window.pet = {
   setSounds(on) { sfx.enabled = !!on },
   setTalking(on) { talking = !!on },
   setFlySpeed(k) { flySpeed = Math.max(0, +k || 0) },
+  setCalm(c) { calm = Math.max(0, Math.min(1, +c || 0)) },
   setOffset(x, y, secs) { slide.tx = x; slide.ty = y; slide.speed = secs ? 1 / Math.max(0.05, secs) : 3 },
   ui(html) { let u = document.getElementById('ui'); if (!u) { u = document.createElement('div'); u.id = 'ui'; document.body.appendChild(u) } u.innerHTML = html || '' },
   typeInto(id, text, ms) { const el = document.getElementById(id); if (!el) return; let i = 0; const step = Math.max(12, ms / Math.max(1, text.length)); el.textContent = ''; const tick = () => { i++; el.textContent = text.slice(0, i); if (i < text.length) setTimeout(tick, step) }; setTimeout(tick, step) },
@@ -423,16 +425,17 @@ function frame() {
   const t = clock.elapsedTime
   stateT += dt
 
-  const k = 140, d = 11
+  const k = 140 - 60 * calm, d = 11 + 12 * calm
   sqV += (-k * sq - d * sqV) * dt
   sq += sqV * dt
 
-  look.x += (look.tx - look.x) * Math.min(1, dt * 6)
-  look.y += (look.ty - look.y) * Math.min(1, dt * 6)
+  const lk = 6 - 4 * calm
+  look.x += (look.tx - look.x) * Math.min(1, dt * lk)
+  look.y += (look.ty - look.y) * Math.min(1, dt * lk)
   levelSmooth += (level - levelSmooth) * Math.min(1, dt * 14)
 
-  let hover = Math.sin(t * 1.5) * 0.03
-  let breathe = 1 + Math.sin(t * 2.0) * 0.012
+  let hover = Math.sin(t * (1.5 - 0.6 * calm)) * (0.03 - 0.01 * calm)
+  let breathe = 1 + Math.sin(t * (2.0 - 0.9 * calm)) * (0.012 + 0.023 * calm)
   let throatScale = 1
   let rotX = -look.y * 0.18, rotY = look.x * 0.32, rotZ = 0
   let eyeOpen = 1
@@ -448,10 +451,10 @@ function frame() {
 
   // idle hop now and then
   hopT -= dt
-  if (hopT <= 0 && state === 'idle') { impulse(-7); hopT = 6 + Math.random() * 8 }
+  if (hopT <= 0 && state === 'idle') { impulse(-7 + 3 * calm); hopT = calm ? 10 + Math.random() * 4 : 6 + Math.random() * 8 }
 
   if (talking && (state === 'idle' || state === 'done')) {
-    const m = 0.5 + 0.5 * (0.6 * Math.sin(t * 6.1) + 0.4 * Math.sin(t * 3.7 + 1.0))
+    const m = 0.5 + 0.5 * (0.6 * Math.sin(t * (6.1 - 1.6 * calm)) + 0.4 * Math.sin(t * (3.7 - 1.1 * calm) + 1.0))
     mouthOpen = 0.12 + m * 0.45
     showGrin = false
     throatScale = 1 + 0.12 + m * 0.12
@@ -462,7 +465,7 @@ function frame() {
       mouthOpen = 0.4 + levelSmooth * 1.4
       showGrin = false
       rotX += 0.1
-      hover = Math.sin(t * 6) * 0.02 * (0.3 + levelSmooth)
+      hover = Math.sin(t * (6 - 4 * calm)) * 0.02 * (0.3 + levelSmooth)
       haloOpacity = 0.18 + levelSmooth * 0.5
       halo.scale.setScalar(1 + levelSmooth * 0.25 + Math.sin(t * 5) * 0.02)
       break
@@ -472,7 +475,7 @@ function frame() {
       rotY += Math.sin(t * 1.5) * 0.25
       rotX -= 0.15
       mouthOpen = 0.3; showGrin = false
-      throatScale = 1 + 0.35 + Math.sin(t * 8) * 0.08
+      throatScale = 1 + 0.35 + Math.sin(t * (8 - 5 * calm)) * 0.08
       hover += Math.abs(Math.sin(t * 5)) * 0.06
       break
     }
