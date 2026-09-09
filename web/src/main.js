@@ -217,6 +217,7 @@ const fly = new THREE.Group()
   scene.add(fly)
 }
 let flyEaten = 0   // time left hidden
+let flySpeed = 1, flyPhase = 0   // fly pace; videos slow it down
 
 // retro military headset: on while taking notes
 const phones = new THREE.Group()
@@ -389,6 +390,7 @@ window.pet = {
   lookAt(x, y) { look.tx = x; look.ty = y },
   setSounds(on) { sfx.enabled = !!on },
   setTalking(on) { talking = !!on },
+  setFlySpeed(k) { flySpeed = Math.max(0, +k || 0) },
   setOffset(x, y, secs) { slide.tx = x; slide.ty = y; slide.speed = secs ? 1 / Math.max(0.05, secs) : 3 },
   ui(html) { let u = document.getElementById('ui'); if (!u) { u = document.createElement('div'); u.id = 'ui'; document.body.appendChild(u) } u.innerHTML = html || '' },
   typeInto(id, text, ms) { const el = document.getElementById(id); if (!el) return; let i = 0; const step = Math.max(12, ms / Math.max(1, text.length)); el.textContent = ''; const tick = () => { i++; el.textContent = text.slice(0, i); if (i < text.length) setTimeout(tick, step) }; setTimeout(tick, step) },
@@ -569,8 +571,9 @@ function frame() {
   // fly buzzes around, hides after being eaten
   flyEaten -= dt
   fly.visible = flyEaten <= 0 && state !== 'noting'
-  const fa = t * 1.3
-  fly.position.set(Math.cos(fa) * 1.5 + Math.sin(t * 7) * 0.08, 0.9 + Math.sin(fa * 1.7) * 0.5 + Math.sin(t * 11) * 0.05, Math.sin(fa) * 0.9 + 0.3)
+  flyPhase += dt * 1.3 * flySpeed
+  const fa = flyPhase, ft = flyPhase / 1.3
+  fly.position.set(Math.cos(fa) * 1.5 + Math.sin(ft * 7) * 0.08, 0.9 + Math.sin(fa * 1.7) * 0.5 + Math.sin(ft * 11) * 0.05, Math.sin(fa) * 0.9 + 0.3)
   fly.userData.wings.forEach((w, i) => { w.rotation.y = Math.sin(t * 60 + i * Math.PI) * 0.8 })
 
   // sparkles
