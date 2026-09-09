@@ -32,6 +32,7 @@ const FPS = 30, SIZE = tl.size || 1080, VW = tl.width || SIZE, VH = tl.height ||
         if (e.state) p.setState(e.state)
         if (e.caption !== undefined) p.setCaption(e.caption)
         if (e.talking !== undefined) p.setTalking(e.talking)
+        if (e.flySpeed !== undefined) p.setFlySpeed(e.flySpeed)
         if (e.boop) p.boop()
         if (e.zoom) p.setZoom(e.zoom)
         if (e.zoomTo) p.zoomTo(e.zoomTo[0], e.zoomTo[1])
