@@ -9,6 +9,27 @@ import Speech
 //   VoicePet --tap-test 5            capture 5s of system audio, transcribe it
 //   VoicePet --chat "hey" ["..."]     load the brain once, print its reply to each message (no memory writes)
 //   VoicePet --react "text" ["..."]   the frog's remark after typing each dictation (no memory writes)
+//   VoicePet --speak "text" out.caf    render a line with the pet's own voice settings to an audio file
+/// Collects AVSpeechSynthesizer.write buffers into one audio file.
+final class SpeechFileWriter: @unchecked Sendable {
+    private let url: URL
+    private var file: AVAudioFile?
+    private var frames: Int64 = 0
+    private var rate: Double = 22050
+    private let q = DispatchQueue(label: "speechwriter")
+    init(url: URL) { self.url = url }
+    func write(_ pcm: AVAudioPCMBuffer) {
+        q.sync {
+            if file == nil { file = try? AVAudioFile(forWriting: url, settings: pcm.format.settings, commonFormat: pcm.format.commonFormat, interleaved: pcm.format.isInterleaved); rate = pcm.format.sampleRate }
+            try? file?.write(from: pcm); frames += Int64(pcm.frameLength)
+        }
+    }
+    private var finished = false
+    /// True the first time only; the synthesizer sends more than one empty buffer at the end.
+    func finish() -> Bool { q.sync { if finished { return false }; finished = true; file = nil; return true } }
+    var seconds: Double { q.sync { Double(frames) / rate } }
+}
+
 final class SampleSink: @unchecked Sendable {
     private var buf: [Float] = []
     private let q = DispatchQueue(label: "sink")
@@ -17,7 +38,7 @@ final class SampleSink: @unchecked Sendable {
 }
 
 func runDebug(_ args: [String]) -> Bool {
-    guard args.count >= 2, ["--transcribe", "--diarize", "--summarize", "--tap-test", "--check", "--brain", "--chat", "--react"].contains(args[1]) else { return false }
+    guard args.count >= 2, ["--transcribe", "--diarize", "--summarize", "--tap-test", "--check", "--brain", "--chat", "--react", "--speak"].contains(args[1]) else { return false }
     let sem = DispatchSemaphore(value: 0)
     Task {
         do {
@@ -66,6 +87,24 @@ func runDebug(_ args: [String]) -> Bool {
                 await brain.prepare()
                 print("status: \(await brain.status)")
                 for m in args.dropFirst(2) { print("> \(m)"); print(await brain.react(toDictation: m) ?? "nil") }
+            case "--speak":
+                guard args.count >= 4 else { print("usage: --speak \"text\" out.caf"); break }
+                let out = URL(fileURLWithPath: args[3])
+                try? FileManager.default.removeItem(at: out)
+                let u = AVSpeechUtterance(string: args[2])
+                let name = UserDefaults.standard.string(forKey: "voiceName") ?? "Grandpa"
+                u.voice = await MainActor.run { PetVoice.voice(named: name) }
+                u.rate = 0.48
+                u.pitchMultiplier = 1.15
+                u.volume = 0.9
+                let synth = AVSpeechSynthesizer()
+                let writer = SpeechFileWriter(url: out)
+                await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+                    synth.write(u) { buffer in
+                        if let pcm = buffer as? AVAudioPCMBuffer, pcm.frameLength > 0 { writer.write(pcm) } else if writer.finish() { c.resume() }
+                    }
+                }
+                print("wrote \(out.path) (\(String(format: "%.2f", writer.seconds))s, voice \(u.voice?.name ?? "?"))")
             case "--check":
                 print("accessibility trusted: \(Permissions.accessibilityTrusted)")
                 print("mic: \(AVCaptureDevice.authorizationStatus(for: .audio).rawValue) (3 = authorized)")
