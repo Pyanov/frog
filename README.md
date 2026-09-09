@@ -39,3 +39,7 @@ The frog is one three.js file, `web/src/main.js`. Open the repo in Claude Code a
 ## Under the hood
 
 Swift/AppKit app built with SwiftPM. Apple SpeechAnalyzer or Parakeet v3 (Core ML) for speech, FluidAudio for diarization, llama.cpp via LLM.swift for the brain (Gemma 4 GGUFs from Unsloth), AVSpeechSynthesizer for the voice, a WKWebView with three.js for the frog. Notes, vocabulary, memory, and models live in `~/Library/Application Support/VoicePet/`.
+
+## License
+
+MIT.
