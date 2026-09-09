@@ -108,6 +108,9 @@ final class Brain {
         return line
     }
 
+    /// One reply, nothing remembered. For the --chat debug flag.
+    func say(_ said: String) async -> String? { await ask(said) }
+
     /// The user spoke to the pet directly. Afterwards, quietly note facts and reminders.
     func chat(_ said: String) async -> String? {
         let reply = await ask(said)
