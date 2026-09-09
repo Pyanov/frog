@@ -17,6 +17,7 @@ const FPS = 30, SIZE = tl.size || 1080, VW = tl.width || SIZE, VH = tl.height ||
   await page.goto('file://' + path.resolve(__dirname, '../dist/index.html') + `?w=${VW}&h=${VH}&white=1&state=idle`)
   if (tl.font) { const b64 = fs.readFileSync(tl.font).toString('base64'); await page.addStyleTag({ content: `@font-face { font-family: 'Diatype'; src: url(data:font/ttf;base64,${b64}) format('truetype'); }` }) }
   if (tl.css) await page.addStyleTag({ content: tl.css })
+  if (tl.html) await page.evaluate(h => document.body.insertAdjacentHTML('beforeend', h), tl.html)
   if (tl.captionClass) await page.evaluate(cls => { window.pet.setCaption(' '); document.getElementById('cap').classList.add(cls); window.pet.setCaption('') }, tl.captionClass)
   await page.clock.runFor(200)
   const total = Math.ceil(tl.duration * FPS)
