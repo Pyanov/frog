@@ -13,7 +13,11 @@ const FPS = 30, SIZE = tl.size || 1080, VW = tl.width || SIZE, VH = tl.height ||
     : await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] })
   const page = await browser.newPage({ viewport: { width: VW, height: VH }, deviceScaleFactor: 1 })
   page.on('pageerror', e => console.log('PAGE ERROR', e.message))
+  // Pause the fake clock so page time only advances with runFor; otherwise real time between
+  // screenshots leaks in and the animation plays several times faster than the probe frames.
   await page.clock.install({ time: new Date('2026-09-03T12:00:00') })
+  await page.clock.pauseAt(new Date('2026-09-03T12:00:00'))
+  const step = (1000 / FPS) * (tl.timeScale || 1) // timeScale >1 plays the pet's animation faster than video time
   await page.goto('file://' + path.resolve(__dirname, '../dist/index.html') + `?w=${VW}&h=${VH}&white=1&state=idle`)
   if (tl.font) { const b64 = fs.readFileSync(tl.font).toString('base64'); await page.addStyleTag({ content: `@font-face { font-family: 'Diatype'; src: url(data:font/ttf;base64,${b64}) format('truetype'); }` }) }
   if (tl.css) await page.addStyleTag({ content: tl.css })
@@ -59,7 +63,7 @@ const FPS = 30, SIZE = tl.size || 1080, VW = tl.width || SIZE, VH = tl.height ||
     }
     // mic level while listening
     await page.evaluate(t => { if (window.pet.state() === 'listening') window.pet.setLevel(0.35 + 0.5 * Math.abs(Math.sin(t * 9)) * Math.abs(Math.sin(t * 2.3))) }, t)
-    await page.clock.runFor(1000 / FPS)
+    await page.clock.runFor(step)
     if (probe) { if (probe.some(pt => Math.abs(pt - t) < 0.5 / FPS)) await page.screenshot({ path: path.join(outDir, `p${t.toFixed(1)}.png`) }) }
     else { await page.screenshot({ path: path.join(outDir, `f${String(f).padStart(5, '0')}.png`) }); if (f % 150 === 0) console.log(`frame ${f}/${total}`) }
   }
