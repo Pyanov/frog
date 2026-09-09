@@ -434,8 +434,8 @@ function frame() {
   look.y += (look.ty - look.y) * Math.min(1, dt * lk)
   levelSmooth += (level - levelSmooth) * Math.min(1, dt * 14)
 
-  let hover = Math.sin(t * (1.5 - 1.15 * calm)) * (0.03 - 0.015 * calm)   // calm: one bob every ~18 s
-  let breathe = 1 + Math.sin(t * (2.0 - 1.5 * calm)) * (0.012 + 0.023 * calm)   // calm: one breath every ~12 s
+  let hover = Math.sin(t * (1.5 - 1.25 * calm)) * (0.03 - 0.022 * calm)   // calm: a faint bob every ~25 s
+  let breathe = 1 + Math.sin(t * (2.0 - 1.7 * calm)) * (0.012 + 0.023 * calm)   // calm: one breath every ~21 s
   let throatScale = 1
   let rotX = -look.y * 0.18, rotY = look.x * 0.32, rotZ = 0
   let eyeOpen = 1
