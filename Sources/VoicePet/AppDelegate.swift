@@ -80,8 +80,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: engine
     func selectEngine(_ id: String) {
-        UserDefaults.standard.set(id, forKey: "engine")
-        engine = (id == "parakeet") ? ParakeetTranscriber() : AppleTranscriber()
+        let selectedID = id == "parakeet" && ParakeetTranscriber.isSupported ? id : "apple"
+        UserDefaults.standard.set(selectedID, forKey: "engine")
+        engine = (selectedID == "parakeet") ? ParakeetTranscriber() : AppleTranscriber()
         Task { await warmEngine() }
     }
     @MainActor private func warmEngine() async {

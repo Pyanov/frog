@@ -12,7 +12,7 @@ Edit only `web/src/main.js`. Keep this contract, everything else is free:
 - Transparent canvas: `renderer.setClearColor(0, 0)` and `alpha: true`. The canvas is 260×300 CSS px (`W`, `H`), set in `index.html` and `PetPanel.size` in Swift. Change both if you change one.
 - `?bg=1` paints a dark background for previews, `?demo=1` cycles states, `?state=name` forces one.
 
-After editing, run `cd web && node tools/capture.cjs` and look at `web/shots/*.png` before claiming it looks right. Then `./build.sh` and `open build/VoicePet.app`.
+After editing, run `cd web && npm run capture` and look at `web/shots/*.png` before claiming it looks right. Then `./build.sh` and `open build/VoicePet.app`.
 
 Design intent: cute, round, soft toon shading with a dark outline, squash-and-stretch on state changes, always something moving (breathing, blinking, gaze). No UI chrome around the pet.
 
