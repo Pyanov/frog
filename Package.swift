@@ -1,6 +1,14 @@
 // swift-tools-version: 6.2
 import PackageDescription
 
+var voicePetDependencies: [Target.Dependency] = [
+    .product(name: "LLM", package: "LLM.swift")
+]
+
+#if arch(arm64)
+voicePetDependencies.append(.product(name: "FluidAudio", package: "FluidAudio"))
+#endif
+
 let package = Package(
     name: "VoicePet",
     platforms: [.macOS(.v26)],
@@ -11,7 +19,7 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "VoicePet",
-            dependencies: [.product(name: "FluidAudio", package: "FluidAudio"), .product(name: "LLM", package: "LLM.swift")],
+            dependencies: voicePetDependencies,
             path: "Sources/VoicePet",
             swiftSettings: [.swiftLanguageMode(.v5)]
         )

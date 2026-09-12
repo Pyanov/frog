@@ -1,7 +1,9 @@
 import AVFoundation
-import FluidAudio
 import Foundation
 import Speech
+#if canImport(FluidAudio)
+import FluidAudio
+#endif
 
 struct TimedWord: Codable { var text: String; var start: Double; var end: Double }
 
@@ -95,7 +97,9 @@ final class AppleTranscriber: Transcriber {
 }
 
 /// NVIDIA Parakeet TDT 0.6B v3 via FluidAudio (Core ML, Neural Engine). ~600 MB download on first use.
+#if canImport(FluidAudio)
 final class ParakeetTranscriber: Transcriber {
+    static let isSupported = true
     let name = "Parakeet v3 on-device"
     var vocabulary: [String] = []      // Parakeet has no vocabulary biasing; replacement rules cover it
     private var manager: AsrManager?
@@ -136,3 +140,22 @@ final class ParakeetTranscriber: Transcriber {
         return try await m.transcribe(samples, decoderState: &state)
     }
 }
+#else
+final class ParakeetTranscriber: Transcriber {
+    static let isSupported = false
+    let name = "Parakeet v3 (requires Apple Silicon)"
+    var vocabulary: [String] = []
+
+    func prepare() async throws { throw unsupportedError }
+    func transcribe(_ samples: [Float]) async throws -> String { throw unsupportedError }
+    func transcribeTimed(_ samples: [Float]) async throws -> [TimedWord] { throw unsupportedError }
+
+    private var unsupportedError: Error {
+        NSError(
+            domain: "VoicePet",
+            code: 20,
+            userInfo: [NSLocalizedDescriptionKey: "Parakeet transcription requires an Apple Silicon Mac"]
+        )
+    }
+}
+#endif
