@@ -1,13 +1,13 @@
 {
-  "originHash" : "c86ed2ba385997da6e027752d0397649c3685cd79ff070e0978be38665435200",
+  "originHash" : "171a9966bf98b84a9deae71fb4a8acccea9c8ac0c7605b2d9d1471408fe2281e",
   "pins" : [
     {
       "identity" : "fluidaudio",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/FluidInference/FluidAudio.git",
       "state" : {
-        "revision" : "4dbf4f9f9a5ff3a53ade848d7ba4e3df13db859b",
-        "version" : "0.15.6"
+        "revision" : "41540ea237350afe5117a082b5c28eda642d0612",
+        "version" : "0.15.7"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/eastriverlee/LLM.swift",
       "state" : {
-        "branch" : "main",
-        "revision" : "1d42188d5238ce4b9d25958f5444713b83d5e045"
+        "revision" : "1d42188d5238ce4b9d25958f5444713b83d5e045",
+        "version" : "3.0.3"
       }
     },
     {

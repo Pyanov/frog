@@ -13,8 +13,8 @@ let package = Package(
     name: "VoicePet",
     platforms: [.macOS(.v26)],
     dependencies: [
-        .package(url: "https://github.com/FluidInference/FluidAudio.git", from: "0.12.4"),
-        .package(url: "https://github.com/eastriverlee/LLM.swift", branch: "main")
+        .package(url: "https://github.com/FluidInference/FluidAudio.git", from: "0.15.7"),
+        .package(url: "https://github.com/eastriverlee/LLM.swift", from: "3.0.3")
     ],
     targets: [
         .executableTarget(
