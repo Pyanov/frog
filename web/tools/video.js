@@ -1,7 +1,11 @@
 // Renders a scripted performance of the pet to PNG frames with a deterministic clock.
-// node tools/video.cjs timeline.json outdir
-const { chromium } = require('/Users/dmitrypyanov/dx-machine/node_modules/playwright')
-const path = require('path'), fs = require('fs')
+// node tools/video.js timeline.json outdir
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { launchBrowser } from './browser.js'
+
+const toolDir = path.dirname(fileURLToPath(import.meta.url))
 const [,, timelinePath, outDir, probeArg] = process.argv
 const probe = probeArg ? probeArg.split(',').map(Number) : null
 const tl = JSON.parse(fs.readFileSync(timelinePath, 'utf8'))
@@ -9,12 +13,12 @@ const FPS = 30, SIZE = tl.size || 1080, VW = tl.width || SIZE, VH = tl.height ||
 ;(async () => {
   fs.mkdirSync(outDir, { recursive: true })
   const browser = process.env.FAST
-    ? await chromium.launch({ channel: 'chrome', args: ['--use-angle=metal', '--ignore-gpu-blocklist', '--enable-gpu-rasterization', '--enable-webgl'] })
-    : await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] })
+    ? await launchBrowser({ args: ['--use-angle=metal', '--ignore-gpu-blocklist', '--enable-gpu-rasterization', '--enable-webgl'] })
+    : await launchBrowser({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] })
   const page = await browser.newPage({ viewport: { width: VW, height: VH }, deviceScaleFactor: 1 })
   page.on('pageerror', e => console.log('PAGE ERROR', e.message))
   await page.clock.install({ time: new Date('2026-09-03T12:00:00') })
-  await page.goto('file://' + path.resolve(__dirname, '../dist/index.html') + `?w=${VW}&h=${VH}&white=1&state=idle`)
+  await page.goto('file://' + path.resolve(toolDir, '../dist/index.html') + `?w=${VW}&h=${VH}&white=1&state=idle`)
   if (tl.font) { const b64 = fs.readFileSync(tl.font).toString('base64'); await page.addStyleTag({ content: `@font-face { font-family: 'Diatype'; src: url(data:font/ttf;base64,${b64}) format('truetype'); }` }) }
   if (tl.css) await page.addStyleTag({ content: tl.css })
   if (tl.html) await page.evaluate(h => document.body.insertAdjacentHTML('beforeend', h), tl.html)

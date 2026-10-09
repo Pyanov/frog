@@ -78,10 +78,20 @@ final class Brain {
         try FileManager.default.createDirectory(at: path.deletingLastPathComponent(), withIntermediateDirectories: true)
         set("downloading 0%")
         let (bytes, resp) = try await URLSession.shared.bytes(from: model.url)
+        guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
+            throw NSError(domain: "VoicePet", code: code, userInfo: [NSLocalizedDescriptionKey: "Model download failed with HTTP \(code)"])
+        }
         let total = resp.expectedContentLength
         let tmp = path.appendingPathExtension("part")
-        FileManager.default.createFile(atPath: tmp.path, contents: nil)
+        try? FileManager.default.removeItem(at: tmp)
+        try Data().write(to: tmp, options: .atomic)
+        var completed = false
+        defer {
+            if !completed { try? FileManager.default.removeItem(at: tmp) }
+        }
         let h = try FileHandle(forWritingTo: tmp)
+        defer { try? h.close() }
         var buf = Data(); buf.reserveCapacity(4 << 20)
         var done: Int64 = 0, lastPct = -1
         for try await b in bytes {
@@ -92,9 +102,13 @@ final class Brain {
                 if pct != lastPct { lastPct = pct; set("downloading \(model.label) \(pct)%") }
             }
         }
-        if !buf.isEmpty { h.write(buf) }
+        if !buf.isEmpty { h.write(buf); done += Int64(buf.count) }
         try h.close()
+        if total > 0, done != total {
+            throw NSError(domain: "VoicePet", code: 3, userInfo: [NSLocalizedDescriptionKey: "Model download was incomplete (received \(done) of \(total) bytes)"])
+        }
         try FileManager.default.moveItem(at: tmp, to: path)
+        completed = true
     }
 
     func forget() { llm?.history.removeAll() }

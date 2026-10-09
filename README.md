@@ -27,8 +27,8 @@ All on device, downloaded on first use.
 
 | Job | Model |
 |---|---|
-| Speech to text | Apple's on-device speech model (SpeechAnalyzer). NVIDIA Parakeet TDT v3 (Core ML, via FluidAudio) is an option in Me. |
-| Who said what | FluidAudio speaker diarization (Core ML). |
+| Speech to text | Apple's on-device speech model (SpeechAnalyzer). On Apple Silicon, NVIDIA Parakeet TDT v3 (Core ML, via FluidAudio) is also an option in Me. |
+| Who said what | FluidAudio speaker diarization (Core ML, Apple Silicon only). |
 | The frog's brain | Gemma 4 through llama.cpp, picked by RAM: E4B (5 GB) on 16 GB Macs, 12B (7 GB) on 24 GB, 26B-A4B (17 GB) on 40 GB and up. Qwen2.5 1.5B (1 GB) is the tiny option. |
 | Meeting summaries | Apple Intelligence's on-device model. Add a Claude API key in Me and it uses Claude instead; that is the one optional thing that leaves your Mac. |
 | Voice | macOS "Grandpa" (AVSpeechSynthesizer). Pick another in Me. |
@@ -40,17 +40,33 @@ All on device, downloaded on first use.
 3. Grant Microphone, Speech Recognition, and Accessibility when asked (Accessibility is for the fn key and for typing into other apps).
 4. System Settings › Keyboard › "Press 🌐 key to" → **Do Nothing**, or fn also opens the emoji picker.
 
-Needs macOS 26 on Apple Silicon. On first launch it downloads its brain in the background. Dictation works immediately; the frog starts talking once the download is done.
+The downloadable release needs macOS 26 on Apple Silicon. On first launch it downloads its brain in the background. Dictation works immediately; the frog starts talking once the download is done.
 
 ## Build from source
 
 ```bash
 git clone https://github.com/Pyanov/frog.git && cd frog
-(cd web && npm install)
-./build.sh && cp -R build/VoicePet.app ~/Applications/ && open ~/Applications/VoicePet.app
+(cd web && npm ci)
+./build.sh
+mkdir -p ~/Applications
+ditto build/VoicePet.app ~/Applications/VoicePet.app
+open ~/Applications/VoicePet.app
 ```
 
-Xcode Command Line Tools and Node 18+ are enough; no Xcode. The first build compiles llama.cpp and takes a few minutes.
+Building requires macOS 26, Xcode Command Line Tools, and Node 20.19+ or 22.12+; full Xcode is not required. Make sure `swift --version` and `xcrun --show-sdk-version` report a compatible installed toolchain. The first build compiles llama.cpp and can take several minutes.
+
+Apple Silicon provides every feature. An Intel source build uses Apple Speech and omits Parakeet transcription and FluidAudio speaker diarization. The prebuilt release is arm64-only.
+
+Useful web checks while developing the pet:
+
+```bash
+cd web
+npm test
+npm run build
+npm run capture
+```
+
+`npm run capture` uses an installed Chrome, Edge, Brave, or Chromium browser when available. If none is installed, install Playwright's Chromium once with `npm run playwright:install`.
 
 ## Make it your own creature
 

@@ -717,7 +717,9 @@ struct MeView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     SectionTitle(text: "Ears")
                     choice("Apple, on this Mac", "apple", engine) { engine = $0; onEngineChange($0) }
-                    choice("Parakeet v3, on this Mac", "parakeet", engine) { engine = $0; onEngineChange($0) }
+                    if ParakeetTranscriber.isSupported {
+                        choice("Parakeet v3, on this Mac", "parakeet", engine) { engine = $0; onEngineChange($0) }
+                    }
                 }.card()
 
                 VStack(alignment: .leading, spacing: 10) {

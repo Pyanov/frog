@@ -1,6 +1,8 @@
 import AVFoundation
-import FluidAudio
 import Foundation
+#if canImport(FluidAudio)
+import FluidAudio
+#endif
 
 /// Records you (mic) and your call (system audio) to two CAF files, then turns them into a speaker-labelled note.
 @MainActor
@@ -161,6 +163,7 @@ enum NoteProcessor {
 
     struct SpeakerSpan { var id: String; var start: Double; var end: Double }
     static func diarize(_ samples: [Float], threshold: Float = 0.7) async throws -> [SpeakerSpan] {
+#if canImport(FluidAudio)
         let models = try await DiarizerModels.load()
         var cfg = DiarizerConfig.default
         cfg.clusteringThreshold = threshold
@@ -168,5 +171,12 @@ enum NoteProcessor {
         m.initialize(models: models)
         let r = try m.performCompleteDiarization(samples, sampleRate: 16000)
         return r.segments.map { SpeakerSpan(id: $0.speakerId, start: Double($0.startTimeSeconds), end: Double($0.endTimeSeconds)) }
+#else
+        throw NSError(
+            domain: "VoicePet",
+            code: 21,
+            userInfo: [NSLocalizedDescriptionKey: "Speaker diarization requires an Apple Silicon Mac"]
+        )
+#endif
     }
 }
