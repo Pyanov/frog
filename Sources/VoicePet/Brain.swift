@@ -23,7 +23,7 @@ final class Brain {
 
     private var llm: LLM?
     private var preparing = false
-    private(set) var status = "off"          // off | downloading 42% | loading | ready | failed: …
+    private(set) var status = "off"          // off | downloading Quick 42% | checking Quick | loading Quick | ready | failed: …
     var onStatus: ((String) -> Void)?
     var petName = "frog"
     var enabled: Bool { UserDefaults.standard.bool(forKey: "brainOn") }
@@ -50,7 +50,7 @@ final class Brain {
         """
     }
 
-    private func set(_ s: String) { status = s; onStatus?(s); NSLog("BRAIN \(s)") }
+    private func set(_ s: String) { status = s; onStatus?(s); NSLog("BRAIN %@", s) }
 
     func prepare() async {
         guard enabled, !preparing else { return }
@@ -75,40 +75,10 @@ final class Brain {
     }
 
     private func download(_ model: Model, to path: URL) async throws {
-        try FileManager.default.createDirectory(at: path.deletingLastPathComponent(), withIntermediateDirectories: true)
-        set("downloading 0%")
-        let (bytes, resp) = try await URLSession.shared.bytes(from: model.url)
-        guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-            let code = (resp as? HTTPURLResponse)?.statusCode ?? -1
-            throw NSError(domain: "VoicePet", code: code, userInfo: [NSLocalizedDescriptionKey: "Model download failed with HTTP \(code)"])
-        }
-        let total = resp.expectedContentLength
-        let tmp = path.appendingPathExtension("part")
-        try? FileManager.default.removeItem(at: tmp)
-        try Data().write(to: tmp, options: .atomic)
-        var completed = false
-        defer {
-            if !completed { try? FileManager.default.removeItem(at: tmp) }
-        }
-        let h = try FileHandle(forWritingTo: tmp)
-        defer { try? h.close() }
-        var buf = Data(); buf.reserveCapacity(4 << 20)
-        var done: Int64 = 0, lastPct = -1
-        for try await b in bytes {
-            buf.append(b)
-            if buf.count >= (4 << 20) {
-                h.write(buf); done += Int64(buf.count); buf.removeAll(keepingCapacity: true)
-                let pct = total > 0 ? Int(done * 100 / total) : 0
-                if pct != lastPct { lastPct = pct; set("downloading \(model.label) \(pct)%") }
-            }
-        }
-        if !buf.isEmpty { h.write(buf); done += Int64(buf.count) }
-        try h.close()
-        if total > 0, done != total {
-            throw NSError(domain: "VoicePet", code: 3, userInfo: [NSLocalizedDescriptionKey: "Model download was incomplete (received \(done) of \(total) bytes)"])
-        }
-        try FileManager.default.moveItem(at: tmp, to: path)
-        completed = true
+        set("downloading \(model.label) 0%")
+        try await ModelDownload(label: model.label, to: path) { [weak self] s in
+            Task { @MainActor in self?.set(s) }
+        }.run(from: model.url)
     }
 
     func forget() { llm?.history.removeAll() }

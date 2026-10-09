@@ -182,7 +182,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     if said.isEmpty { panel.js("pet.setState('idle')"); voice.heardNothing(); return }
                     if !brain.enabled || !brain.isReady {
                         panel.js("pet.setState('done')")
-                        voice.say(brain.status.hasPrefix("downloading") ? "Ribbit. My brain is still downloading, \(brain.status.dropFirst(12))." : "Ribbit? I heard you, but my brain is off. Turn it on in the Me tab.", force: true)
+                        let s = brain.status
+                        voice.say(s.hasPrefix("downloading") ? "Ribbit. My brain is still downloading, \(s.dropFirst(12))."
+                            : brain.enabled && (s.hasPrefix("checking") || s.hasPrefix("loading")) ? "Ribbit. Give me a moment, my brain is still waking up."
+                            : "Ribbit? I heard you, but my brain is off. Turn it on in the Me tab.", force: true)
                         return
                     }
                 }
